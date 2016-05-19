@@ -19,11 +19,13 @@ import struct
 import binascii
 import netaddr
 
+from yabgp.message.attribute.nlri import NLRI
 
-class IPv6Unicast(object):
 
-    @staticmethod
-    def parse(nlri_data):
+class IPv6Unicast(NLRI):
+
+    @classmethod
+    def parse(cls, nlri_data):
         """
         decode IPv6 NLRI data
         :param nlri_data: NLRI raw hex data
@@ -35,7 +37,6 @@ class IPv6Unicast(object):
                 prefix_bit_len = int(nlri_data[0])
             else:
                 prefix_bit_len = struct.unpack('!B', nlri_data[0])[0]
-            print (type(nlri_data))
             if prefix_bit_len % 8 == 0:
                 prefix_byte_len = prefix_bit_len / 8
             else:
@@ -48,8 +49,8 @@ class IPv6Unicast(object):
 
         return nlri_list
 
-    @staticmethod
-    def construct(nlri_list):
+    @classmethod
+    def construct(cls, nlri_list):
         """
         Construct NLRI from list to hex data
         :param nlri_list:

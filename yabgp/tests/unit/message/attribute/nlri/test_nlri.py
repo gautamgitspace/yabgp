@@ -13,22 +13,18 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from yabgp.message.attribute.nlri.mpls_vpn import MPLSVPN
-from yabgp.common.afn import AFNUM_INET6
-from yabgp.common.safn import SAFNUM_LAB_VPNUNICAST
+import unittest
+
+from yabgp.message.attribute.nlri import NLRI
 
 
-class IPv6MPLSVPN(MPLSVPN):
-    """
-    IPv6 MPLS VPN NLRI
-    """
-    AFI = AFNUM_INET6
-    SAFI = SAFNUM_LAB_VPNUNICAST
+class TestNLRI(unittest.TestCase):
 
-    @classmethod
-    def parse(cls, value, iswithdraw=False):
-        return super(IPv6MPLSVPN, cls).parse(value, iswithdraw=iswithdraw)
+    def test_construct_prefix_vpnv6(self):
+        prefix_hex = b'\x20\x10\x00\x00\x00\x12\x00\04'
+        prefix_str = '2010:0:12:4::/64'
+        self.assertEqual(prefix_hex, NLRI.construct_prefix_v6(prefix_str))
 
-    @classmethod
-    def construct(cls, value, iswithdraw=False):
-        return super(IPv6MPLSVPN, cls).construct(value, iswithdraw=iswithdraw)
+
+if __name__ == '__main__':
+    unittest.main()

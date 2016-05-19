@@ -29,10 +29,17 @@ Features
 
 -  BGP capabilities support: 4 Bytes ASN, Route Refresh(Cisco Route Refresh), Add Path send/receive;
 
--  Address family support: IPv4 unicast, IPv4 Flowspec(limited),IPv6 unicast;
+-  Address family support:
 
--  Decode all BGP messages to json format and write files to
-   disk(configurable);
+   - IPv4/IPv6 unicast
+
+   - IPv4 Flowspec(limited)
+
+   - IPv4/IPv6 MPLSVPN
+
+   - EVPN (partially supported)
+
+-  Decode all BGP messages to json format and write them into files in local disk(configurable);
 
 -  Support basic RESTFUL API for getting running information and sending BGP messages.
 
@@ -81,6 +88,11 @@ Documentation
 
 More information please see the documentation http://yabgp.readthedocs.org
 
+Related Projects
+~~~~~~~~~~~~~~~~
+
+https://github.com/trungdtbk/bgp-update-gen
+
 Support
 ~~~~~~~
 
@@ -88,12 +100,6 @@ Support
 
 Send email to xiaoquwl@gmail.com, or use GitHub issue system.
 
-TODO
-~~~~
-
--  support more address family (VPNv4, VPNv6, etc.)
--  more unittest
--  others
 
 Contribute
 ~~~~~~~~~~

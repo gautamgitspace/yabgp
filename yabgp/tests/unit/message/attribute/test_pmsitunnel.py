@@ -13,22 +13,21 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from yabgp.message.attribute.nlri.mpls_vpn import MPLSVPN
-from yabgp.common.afn import AFNUM_INET6
-from yabgp.common.safn import SAFNUM_LAB_VPNUNICAST
+"""Test PMSI Tunnel attribute
+"""
+
+import unittest
+
+from yabgp.message.attribute.pmsitunnel import PMSITunnel
 
 
-class IPv6MPLSVPN(MPLSVPN):
-    """
-    IPv6 MPLS VPN NLRI
-    """
-    AFI = AFNUM_INET6
-    SAFI = SAFNUM_LAB_VPNUNICAST
+class TestPMSITunnel(unittest.TestCase):
 
-    @classmethod
-    def parse(cls, value, iswithdraw=False):
-        return super(IPv6MPLSVPN, cls).parse(value, iswithdraw=iswithdraw)
+    def test_parse(self):
+        self.maxDiff = None
+        hex_valule = b'\x00\x06\x00\x27\x10\x04\x04\x04\x04'
+        value_hoped = {'mpsl_label': 625, 'tunnel_id': '4.4.4.4', 'tunnel_type': 6, 'leaf_info_required': 0}
+        self.assertEqual(value_hoped, PMSITunnel.parse(hex_valule))
 
-    @classmethod
-    def construct(cls, value, iswithdraw=False):
-        return super(IPv6MPLSVPN, cls).construct(value, iswithdraw=iswithdraw)
+if __name__ == '__main__':
+    unittest.main()

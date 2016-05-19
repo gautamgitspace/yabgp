@@ -23,6 +23,7 @@ import time
 import netaddr
 from oslo_config import cfg
 from twisted.internet import protocol
+from twisted.internet import reactor
 
 from yabgp.common import constants as bgp_cons
 from yabgp.message.open import Open
@@ -127,7 +128,7 @@ class BGP(protocol.Protocol):
                 'msg': None
             }
             self.factory.channel.send_message(
-                exchange='', routing_key=self.factory.peer_addr, message=str(send_to_channel_msg))
+                exchange='', routing_key=self.factory.peer_addr, message=send_to_channel_msg)
         # Don't do anything if we closed the connection explicitly ourselves
         if self.disconnected:
             self.factory.connection_closed(self)
@@ -403,7 +404,7 @@ class BGP(protocol.Protocol):
             }
         if send_to_channel_msg['msg']:
             self.factory.channel.send_message(
-                exchange='', routing_key=self.factory.peer_addr, message=str(send_to_channel_msg))
+                exchange='', routing_key=self.factory.peer_addr, message=send_to_channel_msg)
 
     def send_update(self, msg):
         """
@@ -413,12 +414,15 @@ class BGP(protocol.Protocol):
         """
         try:
             msg_update = Update().construct(msg, self.fourbytesas, self.add_path_ipv4_send)
-            self.transport.write(msg_update)
+            reactor.callFromThread(self.write_tcp_thread, msg_update)
             self.msg_sent_stat['Updates'] += 1
             return True
         except Exception as e:
             LOG.error(e)
             return False
+
+    def write_tcp_thread(self, msg):
+        self.transport.write(msg)
 
     def send_notification(self, error, sub_error, data=b''):
         """
@@ -497,7 +501,7 @@ class BGP(protocol.Protocol):
                     'msg': None
                 }
                 self.factory.channel.send_message(
-                    exchange='', routing_key=self.factory.peer_addr, message=str(send_to_channel_msg))
+                    exchange='', routing_key=self.factory.peer_addr, message=send_to_channel_msg)
 
         LOG.info("[%s]A BGP KeepAlive message was received from peer.", self.factory.peer_addr)
         KeepAlive().parse(msg)
@@ -613,9 +617,9 @@ class BGP(protocol.Protocol):
         :param res: reserve, default is 0
         """
         # check if the peer support route refresh
-        if cfg.CONF.bgp.running_config[self.factory.peer_addr]['capability']['remote']['cisco_route_refresh']:
+        if 'cisco_route_refresh' in cfg.CONF.bgp.running_config[self.factory.peer_addr]['capability']['remote']:
             type_code = bgp_cons.MSG_CISCOROUTEREFRESH
-        elif cfg.CONF.bgp.running_config[self.factory.peer_addr]['capability']['remote']['route_refresh']:
+        elif 'route_refresh' in cfg.CONF.bgp.running_config[self.factory.peer_addr]['capability']['remote']:
             type_code = bgp_cons.MSG_ROUTEREFRESH
         else:
             return False
